@@ -1,0 +1,19 @@
+{"weapons":[{
+    "COUNTRY": "FRANCE",
+    "ID": "WEAPON_3",
+    "MANUFACTURER": "DASSAULT",
+    "TYPE": "MORTAR"
+  },
+  { 
+    "COUNTRY": "FRANCE",
+    "ID": "WEAPON_5",
+    "MANUFACTURER": "DASSAULT",
+    "TYPE": "MORTAR"
+  },
+  {
+    "COUNTRY": "RUSSIA",
+    "ID": "WEAPON_4",
+    "MANUFACTURER": "ISHMAZ",
+    "TYPE": "RIFLE"
+  }]}
+

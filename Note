@@ -1,0 +1,16 @@
+##To send data to service as POST
+curl -XPOST http://127.0.0.1:5000/weapon -d '{"ID":"WEAPON_3","TYPE":"ROCKET","MANUFACTURER":"ISHMAZ","COUNTRY":"RUSSIA"}' -H "Content-Type: application/json"
+
+#USE THE BELOW FORMAT FOR INSERTING SINGLE ELEMENT
+curl -XPOST http://127.0.0.1:5000/weapon -d '{"weapons":[{"ID":"WEAPON_3","TYPE":"ROCKET","MANUFACTURER":"ISHMAZ","COUNTRY":"RUSSIA"}]}' -H "Content-Type: application/json"
+
+#TO INSERT MILTIPLE VALUES, USE
+curl -XPOST http://127.0.0.1:5000/weapon -d @inp.json  -H "Content-Type: application/json"
+## for GET data
+curl -XGET http://127.0.0.1:5000/weapon
+
+## To delete a data
+curl -XDELETE http://127.0.0.1:5000/weapon/WEAPON_1
+
+## Best documentation
+https://www.freecodecamp.org/news/structuring-a-flask-restplus-web-service-for-production-builds-c2ec676de563/
