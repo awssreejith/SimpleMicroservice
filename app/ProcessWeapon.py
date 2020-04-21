@@ -29,9 +29,14 @@ InvalidType          = 3
 NullValue            = 4
 DuplicateKey         = 5
 BadRequest           = 6
-InvalidKeyVlue       = 7
+InvalidOrMissingKey  = 7
 SUCCESS              = 8
 FAIL                 = 9
+
+ID_BIT              = 1
+TYPE_BIT            = 2
+MANUF_BIT           = 4
+COUNTRY_BIT         = 8
 
 @App.route('/weapon',methods=['GET','POST'])
 def ProessRequestForALLWeapon():
@@ -86,9 +91,11 @@ class ProcessWeapon:
             else:
                 return -1
     
-        for idx,payload in  enumerate(payloadArray):  
-            if self.isValidKeys(payload) == False:
-                self.resultMessages.append(self.createErrorDictionary(InvalidKey,idx))
+        for idx,payload in  enumerate(payloadArray):
+        
+            completeBit = self.checkValidKeys(payload)
+            if completeBit != (ID_BIT + TYPE_BIT + MANUF_BIT + COUNTRY_BIT) :
+                self.resultMessages.append(self.createErrorDictionary(InvalidOrMissingKey,idx))
                 continue
 
             if self.isValidType(payload) == False:
@@ -131,11 +138,21 @@ class ProcessWeapon:
         return self.resultMessages
      
 
-    def isValidKeys(self,payload):
+    def checkValidKeys(self,payload):
+        completeBit = 0
+                
         for key in payload:
-            if key not in suppportedKeys:
-                return False
-        return True
+            if key == 'ID':
+                completeBit |= ID_BIT
+            elif key == 'TYPE':
+                completeBit |= TYPE_BIT
+            elif key == 'MANUFACTURER':
+                completeBit |= MANUF_BIT 
+            elif key == 'COUNTRY':
+                completeBit |= COUNTRY_BIT      
+            else:
+                return 0
+        return completeBit
                   
      
     def isValidType(self,payload):
@@ -228,12 +245,13 @@ class ProcessWeapon:
             errorMap['serial number'] = index
             return errorMap
             
-        elif errorType == InvalidKeyVlue:
+        elif errorType == InvalidOrMissingKey:
             errorMap['Status']  = 'Failed'
-            errorMap['Message'] = 'Invalid Key value provided'
+            errorMap['Message'] = 'Invalid or missing key'
             errorMap['error code'] = 117
             errorMap['serial number'] = index
             return errorMap
+            
   
         else:
             return {}
