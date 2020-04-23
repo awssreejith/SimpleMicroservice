@@ -1,19 +1,19 @@
 {"weapons":[{
     "COUNTRY": "FRANCE",
-    "ID": "WEAPON_3",
-    "MANUFACTURER": "DASSAULT",
-    "TYPE": "MORTAR"
-  },
-  { 
-    "COUNTRY": "FRANCE",
     "ID": "WEAPON_5",
     "MANUFACTURER": "DASSAULT",
     "TYPE": "MORTAR"
   },
+  { 
+    "COUNTRY": "ENGLAND",
+    "ID": "WEAPON_6",
+    "MANUFACTURER": "BAE Systems",
+    "TYPE": "TANK"
+  },
   {
-    "COUNTRY": "RUSSIA",
-    "ID": "WEAPON_4",
-    "MANUFACTURER": "ISHMAZ",
+    "COUNTRY": "GERMANY",
+    "ID": "WEAPON_7",
+    "MANUFACTURER": "HECKLER & KOCH",
     "TYPE": "RIFLE"
   }]}
 
