@@ -24,27 +24,35 @@ suppportedKeys               = ['ID','TYPE', 'MANUFACTURER', 'COUNTRY']
 
 ValueInsertedSuccess = 0
 ValueDeletedSuccess  = 1
-InvalidKey           = 2
-InvalidType          = 3
-NullValue            = 4
-DuplicateKey         = 5
-BadRequest           = 6
-InvalidOrMissingKey  = 7
-SUCCESS              = 8
-FAIL                 = 9
+ValueUpdatedSuccess  = 3
+InvalidKey           = 4
+InvalidType          = 5
+NullValue            = 6
+DuplicateKey         = 7
+BadRequest           = 8
+InvalidOrMissingKey  = 9
+RecordNotFound       = 10
+SUCCESS              = 11
+FAIL                 = 12
 
 ID_BIT              = 1
 TYPE_BIT            = 2
 MANUF_BIT           = 4
 COUNTRY_BIT         = 8
 
-@App.route('/weapon',methods=['GET','POST'])
+@App.route('/weapon',methods=['GET','POST','PUT'])
 def ProessRequestForALLWeapon():
     if request.method == 'GET':
         return(jsonify(weaponsDB))
-    else:
+        
+    elif request.method == 'POST':
         process = ProcessWeapon()
         jsonObj = process.processPost(request)
+        return jsonify(jsonObj)
+        
+    elif request.method == 'PUT':
+        process = ProcessWeapon()
+        jsonObj = process.processGet(request)
         return jsonify(jsonObj)
         
         
@@ -53,9 +61,8 @@ def ProcessForSpecificWeapon(ID):
 
     process = ProcessWeapon()
     jsonObj = process.processDelete(ID)
-
     return jsonify(jsonObj)
-        
+      
 
 class ProcessWeapon:
     
@@ -109,7 +116,7 @@ class ProcessWeapon:
             if self.isKeyNotExisting(payload) == False:
                 self.resultMessages.append(self.createErrorDictionary(DuplicateKey,idx))
                 continue
-            ## If we reached here.. it man everythig is perfect and we can blindly insert 
+            ## If we reached here.. it means everythig is perfect and we can blindly insert 
             self.insertIntoDB(payload)
             self.resultMessages.append(self.createErrorDictionary(ValueInsertedSuccess,idx))
         return 0
@@ -136,7 +143,63 @@ class ProcessWeapon:
         else:
             self.resultMessages.append(self.createErrorDictionary(InvalidKeyVlue,0))
         return self.resultMessages
-     
+
+    def processGet(self, request):
+        jsonRequest = request.get_json()
+        self.resultMessages.clear()
+        ret = self.processGETComplete(jsonRequest)
+        if ret == -1:
+            self.resultMessages.append(self.createErrorDictionary(BadRequest,0))
+        return (self.resultMessages)
+ 
+
+    def processGETComplete(self,jsonRequest):
+        payLoadArray = []
+        for idx,key in enumerate(jsonRequest):
+            if idx == 0 and key == 'weapons':
+                payLoadArray = jsonRequest[key]
+                break
+            else:
+                return -1
+        for payload in payLoadArray: ##Normally we should only have one element
+            completeBit = self.checkValidKeys(payload)
+            if completeBit != (ID_BIT | TYPE_BIT | MANUF_BIT | COUNTRY_BIT):
+                self.createErrorDictionary(InvalidOrMissingKey,0)
+                return 0
+            
+            if self.isValidType(payload) == False:
+                self.resultMessages.append(self.createErrorDictionary(InvalidType,0))
+                return 0
+               
+            if self.isNotNullValue(payload) == False:
+                self.resultMessages.append(self.createErrorDictionary(NullValue,0))
+                return 0
+               
+            if self.isKeyNotExisting(payload) == True: ##If no key..then we shouldn't proceed
+                self.resultMessages.append(self.createErrorDictionary(RecordNotFound,0))
+                return 0
+            ## If we reached here.. it means everythig is perfect and we can blindly update 
+            self.updateIntoDB(payload)
+            self.resultMessages.append(self.createErrorDictionary(ValueUpdatedSuccess,0))
+        return 0
+                
+                
+    def updateIntoDB(self,payload):
+        keyFound = False
+        for idx,element in enumerate(weaponsDB):
+            for key in element:
+                if key == 'ID':
+                    if element[key] == payload[key]:
+                        keyFound = True
+                        break ##we got the index to delete
+            if keyFound == True:
+                break
+        ##remove it first
+        weaponsDB.pop(idx)
+        ##Now add the new values
+        weaponsDB.insert(idx,payload)
+        return True
+ 
 
     def checkValidKeys(self,payload):
         completeBit = 0
@@ -251,6 +314,20 @@ class ProcessWeapon:
             errorMap['error code'] = 117
             errorMap['serial number'] = index
             return errorMap
+            
+        elif errorType == ValueUpdatedSuccess:
+            errorMap['Status']  = 'Success'
+            errorMap['Message'] = 'Value updated succesfully'
+            errorMap['error code'] = 119
+            errorMap['serial number'] = index
+            return errorMap    
+
+        elif errorType == RecordNotFound:
+            errorMap['Status']  = 'Failed'
+            errorMap['Message'] = 'Record Not Found'
+            errorMap['error code'] = 123
+            errorMap['serial number'] = index
+            return errorMap              
             
   
         else:
