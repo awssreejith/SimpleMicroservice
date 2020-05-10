@@ -71,7 +71,7 @@ class ProcessWeapon:
         self.resultMessages = []
         
     def startService(self):
-        App.run(debug=True)
+        App.run(host='0.0.0.0',debug=True)
         
       
     def processPost(self,request):
